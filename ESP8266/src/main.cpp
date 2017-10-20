@@ -81,10 +81,4 @@ void loop()
 
     // End session
     http.end();
-
-    // Configure LED digital pattern
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
 }
