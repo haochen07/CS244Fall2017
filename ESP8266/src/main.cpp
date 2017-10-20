@@ -45,8 +45,8 @@ void setup()
     //Configure sensor. Use 6.4mA for LED drive
     particleSensor.setup();
 
-    byte powerLevel = 0x02; //0.4mA - Presence detection of ~4 inch
-    //byte powerLevel = 0x1F; // 6.4mA - Presence detection of ~8 inch
+    //byte powerLevel = 0x02; //0.4mA - Presence detection of ~4 inch
+    byte powerLevel = 0x1F; // 6.4mA - Presence detection of ~8 inch
     //byte powerLevel = 0x7F; //25.4mA - Presence detection of ~8 inch
     //byte powerLevel = 0xFF; //50.0mA - Presence detection of ~12 inch
     particleSensor.setPulseAmplitudeRed(powerLevel);
