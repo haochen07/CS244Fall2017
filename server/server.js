@@ -1,9 +1,10 @@
 // import { write_to } from "output.js"
 const output = require('./output.js');
+// const input = require('./input.js');
 const http = require('http');
 const fs = require('fs');
 
-var filepath = "/Users/shayangzang/Desktop/octaCat/CS244Fall2017/project/server/testOut.csv";
+var filepath = "/Users/shayangzang/Desktop/octaCat/CS244Fall2017/server.testOut";
 
 header = "RED,IR\n"
 output.write_to(filepath, header);
@@ -56,7 +57,9 @@ http.createServer((request, response) => {
   response.setHeader('Content-Type', 'application/json');
   // Note: the 2 lines above could be replaced with this next one:
   // response.writeHead(200, {'Content-Type': 'application/json'})
+
   let responseBody = "Greeting from the Cloud.";
+
   const responseWritable = { headers, method, url, responseBody };
 
   // response.write(JSON.stringify(responseBody));

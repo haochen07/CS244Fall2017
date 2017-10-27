@@ -18,3 +18,12 @@ module.exports.append_to = function(filepath, content) {
     console.log("Write: " + content + " to existing file: " + filepath);
   });
 }
+//
+// module.exports.writeArrToCSV = function(filepath, array) {
+//   fs.writeFile(filepath, content, function(err) {
+//     if(err) {
+//       return console.log(err);
+//      }
+//      console.log("Create file: " + filepath + " and write: " + content);
+//   });
+// }

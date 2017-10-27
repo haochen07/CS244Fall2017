@@ -1,0 +1,76 @@
+<html>
+	<script src="./fili.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+	<p>hello world!</p>
+
+	<canvas id="myChart"></canvas>
+
+	<p>Passing data to HTML:</p>
+	<p><%= data %></p>
+	
+	<script>
+		//  Instance of a filter coefficient calculator
+		var iirCalculator = new Fili.CalcCascades();
+
+		// get available filters
+		var availableFilters = iirCalculator.available();
+
+		// calculate filter coefficients
+		var iirFilterCoeffs = iirCalculator.lowpass({
+			order: 3, // cascade 3 biquad filters (max: 12)
+			characteristic: 'butterworth',
+			Fs: 1000, // sampling frequency
+			Fc: 100, // cutoff frequency / center frequency for bandpass, bandstop, peak
+			BW: 1, // bandwidth only for bandstop and bandpass filters - optional
+			gain: 0, // gain for peak, lowshelf and highshelf
+			preGain: false // adds one constant multiplication for highpass and lowpass
+			// k = (1 + cos(omega)) * 0.5 / k = 1 with preGain == false
+		  });
+
+		// create a filter instance from the calculated coeffs
+		var iirFilter = new Fili.IirFilter(iirFilterCoeffs);
+		
+		// run the filter with 10 samples from a ramp
+		// returns single value
+		for (var cnt = 0; cnt < 10; cnt++) {
+		  console.log(iirFilter.singleStep(cnt));
+		}
+
+		// run the filter from input array
+		// returns array
+		console.log(iirFilter.multiStep([1,10,-5,3,1.112,17]));
+
+		// simulate the filter
+		// does not change the internal state
+		// returns array
+		console.log(iirFilter.simulate([-3,-2,-1,5,6,33]));
+		
+
+		var data = iirFilter.multiStep([1,1,1,1,1,1,1,1,1,1,1,1,1]);
+		var labels = [];
+		for(var i = 0; i < data.length; i++)
+		{
+			labels.push(' ');
+		}
+		
+		var ctx = document.getElementById('myChart').getContext('2d');
+		var myLineChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: "My First dataset",
+					borderColor: 'rgb(255, 99, 132)',
+					data: data,
+				}]
+			},
+			options: {
+				elements: {
+					line: {
+						tension: 0, // disables bezier curves
+					}
+				}
+			}
+		});
+	</script>
+</html>
