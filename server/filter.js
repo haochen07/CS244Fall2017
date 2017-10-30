@@ -8,6 +8,7 @@ module.exports.extractFeatures = function(callback) {
     RED:  [] //column "RED"
   };
 
+  //TODO: optimize input code.
   csv.fromPath("./data/sample.csv")
      .on("data", function(data){
         if (data[0] != "time(second)") {
@@ -37,11 +38,13 @@ function getFeatures(ppg) {
 }
 
 function getHeartRate(ppg) {
-  return applyBandPassFilter(ppg.IR, 1.25, 0.5);
+  var filtered = applyBandPassFilter(ppg.IR, 1.25, 0.5);
+  return calculateRate(ppg.time, filtered);
 }
 
 function getRespirationRate(ppg) {
-  return [0,0];
+  var filtered = applyBandPassFilter(ppg.IR, 0.25, 0.2);
+  return calculateRate(ppg.time, filtered);
 }
 
 function getSpo2(ppg) {
@@ -60,3 +63,30 @@ function applyBandPassFilter(data, fc, bw) {
   });
   return new Fili.IirFilter(iirFilterCoeffs).multiStep(data);
 }
+
+function calculateRate(time, data) {
+  var peaksTime = [];
+  for (var i = 0; i < data.length; i++) {
+    if (i > 0 && i+1 < data.length && data[i-1] < data[i] && data[i] > data[i+1]) {
+      peaksTime.push(time[i]);
+    }
+  }
+  var rate = [];
+  var i = 1;
+  var j = 0;
+  while (i < peaksTime.length) {
+    var currentRate = 60/(peaksTime[i] - peaksTime[i-1]);
+    while (j < time.length && time[j] <= peaksTime[i]) {
+      rate.push(currentRate);
+      j++;
+    }
+    i++;
+  }
+  var lastRate = rate[j-1];
+  while (j < time.length) {
+    rate.push(lastRate);
+    j++;
+  }
+  return rate;
+}
+

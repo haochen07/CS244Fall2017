@@ -1,55 +1,96 @@
 <html>
 
-	<p>hello world!</p>
-	<div style="overflow-x:scroll;overflow-y:hidden;">
-		<div id="chartStyle" style="width:10000px !important;height:600px !important;">
-			<canvas id="heartRate"></canvas>
-		</div>
-	</div>
-	
+<head>
+	<title>Vital Features</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/0.5.0/chartjs-plugin-zoom.min.js"></script>
+</head>
+
+	<center><h1>Heart Rate</h1></center>
+
+	<canvas id="heartRate"></canvas>
+
+	<center><h1>Respiration Rate</h1></center>
+
+	<canvas id="respirationRate"></canvas>
+
 	<script>
 
-		console.log(<%= time %>)
-		console.log(<%= heart %>);
-		console.log(<%= respiration %>);
 		console.log(<%= spo2 %>);
 
-		var data = <%= heart %>;
-		var labels = [];
-		for(var i = 0; i < data.length; i++) {
-			labels.push(i);
-		}
+		var time = <%= time %>;
+		var heartRate = <%= heart %>;
+		var respirationRate = <%= respiration %>;
+		var spo2 = <%= spo2 %>;
 		
-		var ctx = document.getElementById('heartRate').getContext('2d');
-		var myLineChart = new Chart(ctx, {
+		var heartChart = new Chart(document.getElementById('heartRate').getContext('2d'), {
 			type: 'line',
 			data: {
-				labels: labels,
+				labels: time,
 				datasets: [{
-					label: "Filtered signal for heart rate",
+					label: 'Heart Rate',
 					borderColor: 'rgb(255, 99, 132)',
-					data: data,
+					borderWidth: 1,
+					pointRadius: 1,
+					fill: false,
+					data: heartRate
 				}]
 			},
 			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				elements: {
-					line: {
-						tension: 0, // disables bezier curves
-					}
-				},
 				scales: {
                     yAxes: [{
-                            display: true,
-                            ticks: {
-                                max: 200,//220000,
-                                min: -200//215000
-                            }
-                        }]
+                    	ticks: {
+                        	max: 110,
+                            min: 40
+                        }
+                    }]
                 },
+				pan: {
+					enabled: true,
+					mode: 'xy',
+				},
+				zoom: {
+					enabled: true,
+					drag: true,
+					mode: 'xy',
+				}
 			}
 		});
+
+		var respirationChart = new Chart(document.getElementById('respirationRate').getContext('2d'), {
+			type: 'line',
+			data: {
+				labels: time,
+				datasets: [{
+					label: 'Respiration Rate',
+					borderColor: 'blue',
+					borderWidth: 1,
+					pointRadius: 1,
+					fill: false,
+					data: respirationRate
+				}]
+			},
+			options: {
+				scales: {
+                    yAxes: [{
+                    	ticks: {
+                        	max: 20,
+                            min: 12
+                        }
+                    }]
+                },
+				pan: {
+					enabled: true,
+					mode: 'xy',
+				},
+				zoom: {
+					enabled: true,
+					drag: true,
+					mode: 'xy',
+				}
+			}
+		});
+
 	</script>
 </html>

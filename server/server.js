@@ -2,8 +2,7 @@ const filter = require('./filter.js');
 const logger = require('./logger.js');
 var express = require("express");
 var ejs = require('ejs');
-
-console.log("Server started.");
+var path = require('path');
 
 var features;
 filter.extractFeatures(function(data) {
@@ -15,6 +14,7 @@ filter.extractFeatures(function(data) {
 // Configure & start server
 var app = express();
 app.engine('html', ejs.renderFile);
+app.use('/views', express.static(path.join(__dirname, 'views')));
 
 app.get('/', function(request, response) {
   response.render("index.html", {
