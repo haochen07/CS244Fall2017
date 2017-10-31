@@ -5,21 +5,31 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/0.5.0/chartjs-plugin-zoom.min.js"></script>
+	<style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
 </head>
 
 	<center><h1>Heart Rate</h1></center>
-
 	<canvas id="heartRate"></canvas>
 
 	<center><h1>Respiration Rate</h1></center>
-
 	<canvas id="respirationRate"></canvas>
+
+	<center><h1>SPO2</h1></center>
+	<canvas id="SPO2"></canvas>
 
 	<script>
 
 		console.log(<%= spo2 %>);
 
 		var time = <%= time %>;
+		var IR = <%= IR %>;
+		var RED = <%= RED %>;
 		var heartRate = <%= heart %>;
 		var respirationRate = <%= respiration %>;
 		var spo2 = <%= spo2 %>;
@@ -77,6 +87,68 @@
                     	ticks: {
                         	max: 20,
                             min: 12
+                        }
+                    }]
+                },
+				pan: {
+					enabled: true,
+					mode: 'xy',
+				},
+				zoom: {
+					enabled: true,
+					drag: true,
+					mode: 'xy',
+				}
+			}
+		});
+
+		var Spo2Chart = new Chart(document.getElementById('SPO2').getContext('2d'), {
+			type: 'line',
+			data: {
+				labels: time,
+				datasets: [{
+					label: 'IR',
+					borderColor: 'blue',
+					borderWidth: 1,
+					pointRadius: 1,
+					fill: false,
+					data: IR,
+					yAxisID: "y-axis-1",
+				}, {
+					label: 'RED',
+					borderColor: 'red',
+					borderWidth: 1,
+					pointRadius: 1,
+					fill: false,
+					data: RED,
+					yAxisID: "y-axis-2",
+				}]
+			},
+			options: {
+				scales: {
+                    yAxes: [{
+                        type: "linear",
+                        display: true,
+                        position: "left",
+                        id: "y-axis-1",
+                        ticks: {
+                        	max: 218500,
+                            min: 215000
+                        },
+                        gridLines: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        }
+                    }, {
+                        type: "linear",
+                        display: true,
+                        position: "right",
+                        id: "y-axis-2",
+                        ticks: {
+                        	max: 235000,
+                            min: 220000
+                        },
+                        gridLines: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
                         }
                     }]
                 },

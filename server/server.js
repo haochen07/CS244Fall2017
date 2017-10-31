@@ -19,6 +19,8 @@ app.use('/views', express.static(path.join(__dirname, 'views')));
 app.get('/', function(request, response) {
   response.render("index.html", {
     time:         JSON.stringify(features.time),
+    IR:           JSON.stringify(features.IR),
+    RED:          JSON.stringify(features.RED),
     heart:        JSON.stringify(features.heartRate),
     respiration:  JSON.stringify(features.respirationRate),
     spo2:         JSON.stringify(features.spo2)

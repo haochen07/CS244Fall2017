@@ -65,12 +65,8 @@ function applyBandPassFilter(data, fc, bw) {
 }
 
 function calculateRate(time, data) {
-  var peaksTime = [];
-  for (var i = 0; i < data.length; i++) {
-    if (i > 0 && i+1 < data.length && data[i-1] < data[i] && data[i] > data[i+1]) {
-      peaksTime.push(time[i]);
-    }
-  }
+  var peaks = detectPeak(time, data);
+  var peaksTime = peaks.time;
   var rate = [];
   var i = 1;
   var j = 0;
@@ -90,3 +86,17 @@ function calculateRate(time, data) {
   return rate;
 }
 
+function detectPeak(time, data) {
+  var peaksTime = [];
+  var peaks = [];
+  for (var i = 1; i < data.length; i++) {
+    if (i+1 < data.length && data[i-1] < data[i] && data[i] > data[i+1]) {
+      peaksTime.push(time[i]);
+      peaks.push(data[i]);
+    }
+  }
+  return {
+    time: peaksTime,
+    peak: peaks
+  };
+}

@@ -6,7 +6,7 @@ module.exports.recordFeatures = function(data) {
   fs.writeFile(filepath, header);
 
   for(i = 0; i < data.IR.length; i++) {
-    var line = data.IR[i] + ',' + data.RED[i] + '\n';
+    var line = data.IR[i] + ',' + data.RED[i] + ',' + data.heartRate[i] + ',' + data.respirationRate[i] + '\n';
     fs.appendFile(filepath, line);  
   }
 }
