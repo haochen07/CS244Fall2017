@@ -25,8 +25,6 @@
 
 	<script>
 
-		console.log(<%= spo2 %>);
-
 		var time = <%= time %>;
 		var IR = <%= IR %>;
 		var RED = <%= RED %>;
@@ -107,21 +105,12 @@
 			data: {
 				labels: time,
 				datasets: [{
-					label: 'IR',
-					borderColor: 'blue',
+					label: 'SPO2',
+					borderColor: 'green',
 					borderWidth: 1,
 					pointRadius: 1,
 					fill: false,
-					data: IR,
-					yAxisID: "y-axis-1",
-				}, {
-					label: 'RED',
-					borderColor: 'red',
-					borderWidth: 1,
-					pointRadius: 1,
-					fill: false,
-					data: RED,
-					yAxisID: "y-axis-2",
+					data: spo2,
 				}]
 			},
 			options: {
@@ -130,25 +119,9 @@
                         type: "linear",
                         display: true,
                         position: "left",
-                        id: "y-axis-1",
                         ticks: {
-                        	max: 218500,
-                            min: 215000
-                        },
-                        gridLines: {
-                            drawOnChartArea: false, // only want the grid lines for one axis to show up
-                        }
-                    }, {
-                        type: "linear",
-                        display: true,
-                        position: "right",
-                        id: "y-axis-2",
-                        ticks: {
-                        	max: 235000,
-                            min: 220000
-                        },
-                        gridLines: {
-                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        	max: 100,//235000,
+                            min: 60//220000
                         }
                     }]
                 },
