@@ -4,9 +4,15 @@
 #include <ESP8266HTTPClient.h>
 #include "MAX30105.h"
 #include <Wire.h>
+#include "SparkFunLIS3DH.h"
+#include "SPI.h"
 
 String deviceName = "CS244";
-MAX30105 particleSensor;
+// ACC sensor
+LIS3DH myIMU(SPI_MODE, 4); // constructed with parameters for SPI and cs pin number
+
+// PPG sensor
+// MAX30105 particleSensor;
 
 // WiFi settings
 const char *ssid = "UCInet Mobile Access";
@@ -25,17 +31,7 @@ void connectWiFi()
     Serial.println(WiFi.localIP());
 }
 
-void setup()
-{
-    // initialize LED digital pin as an output.
-    pinMode(LED_BUILTIN, OUTPUT);
-    Serial.begin(115200);
-    Serial.println("Program started");
-
-    // connect WiFi
-    connectWiFi();
-
-    // Initialize sensor
+void initializePPGSensor() {
     if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
     {
         Serial.println("MAX30105 was not found. Please check wiring/power. ");
@@ -55,18 +51,43 @@ void setup()
     particleSensor.setPulseAmplitudeProximity(powerLevel);
 }
 
+void initializeACCSensor() {
+    myIMU.begin();
+}
+
+void setup()
+{
+    // initialize LED digital pin as an output.
+    pinMode(LED_BUILTIN, OUTPUT);
+    Serial.begin(115200);
+    Serial.println("Program started");
+
+    // connect WiFi
+    connectWiFi();
+    // initialize ACC sensor
+    initializeACCSensor();
+    // initialize PPG sensor
+    // initializePPGSensor();
+}
+
 void loop()
 {
     // Configure http connection and set headers
     HTTPClient http;
-    http.begin("http://169.234.17.0:8888/");
+    http.begin("http://169.234.30.169:8888/rest");
     http.addHeader("Content-Type", "application/json");
 
     // Render Json request
-    StaticJsonBuffer<300> JSONbuffer;    
+    StaticJsonBuffer<300> JSONbuffer;
     JsonObject& root = JSONbuffer.createObject();
-    root["Red"] = particleSensor.getRed();
-    root["IR"] = particleSensor.getIR();
+
+    // Record to json
+    root["X"] = myIMU.readFloatAccelX();
+    root["Y"] = myIMU.readFloatAccelY();
+    root["Z"] = myIMU.readFloatAccelZ();
+
+    // root["Red"] = particleSensor.getRed();
+    // root["IR"] = particleSensor.getIR();
 
     // Convert Json object to string
     char jsonBuffer[300];
