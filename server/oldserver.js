@@ -46,7 +46,7 @@ http.createServer((request, response) => {
     }
   })
   var record = rVal + "," + irVal + "," + time + "\n";
-  output.append_to(filepath, record)
+  output.append_to(filepath, record);
 
 
   response.on('error', (err) => {
