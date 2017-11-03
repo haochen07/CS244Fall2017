@@ -30,6 +30,6 @@ module.exports.append_to = function(filepath, content) {
   });
 }
 
-module.exports.makeRecord = function(listData) {
+module.exports.makeCsvRecord = function(listData) {
   return listData.join(',') + '\n';
 }

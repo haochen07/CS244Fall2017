@@ -14,10 +14,15 @@ filter.extractFeatures(function(data) {
   console.log("Features recorded in file.");
 });
 
-// prepare local storage for ESP device data
-var filepath = "./data/ppgDataFromDevice.csv";
-var header = "IR,RED,time\n";
-logger.write_to(filepath, header);
+// prepare local storage for PPG device data
+var ppgOutputFile = "./data/ppgData.csv";
+var ppGHeader = "IR,RED,time\n";
+logger.write_to(ppgOutputFile, ppGHeader);
+
+// prepare local storage for motion device data
+var motionOutputFile = "./data/motionData.csv"
+var motionHeader = "X,Y,Z\n";
+logger.write_to(motionOutputFile, motionHeader);
 
 // Configure & start server
 var app = express();
@@ -25,7 +30,7 @@ app.engine('html', ejs.renderFile);
 app.use('/views', express.static(path.join(__dirname, 'views')));
 
 // render HR/Resp/SOP2 graph
-app.get('/', function(request, response) {
+app.get('/graph', function(request, response) {
   response.render("index.html", {
     time:         JSON.stringify(features.time),
     IR:           JSON.stringify(features.IR),
@@ -37,16 +42,13 @@ app.get('/', function(request, response) {
   console.log("Web page rendered.");
 });
 
-app.get('/rest', function(request, response) {
-  rest.stringifyReqData(request, 0, requestBody);
+app.get('/motion', function(request, response) {
+  rest.handle("motion", request, response, motionOutputFile, 0);
+});
 
-  rest.jsonParse(requestBody, 0, ppg);
 
-  var record = logger.makeRecord([ppg.IR, ppg.RED, ppg.time]);
-
-  logger.append_to(filepath, record)
-
-  rest.httpResponse(response, 0);
+app.get('/ppg', function(request, response) {
+  rest.handle("ppg", request, response, ppgOutputFile, 0);
 });
 
 app.listen(8888);
