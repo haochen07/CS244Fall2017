@@ -1,37 +1,106 @@
 const logger = require('./logger.js');
 
-module.exports.handle = function(mode, request, response, outputfile, debug) {
+module.exports.handle = function(mode, req, res, outputfile, debug) {
   if (mode == "ppg") {
-    handlePPG(request, response, outputfile, debug);
+    handlePPG(req, res, outputfile, debug);
   }
   else if (mode == "motion") {
-    handleMotion(request, response, outputfile, debug);
+    handleMotion(req, res, outputfile, debug);
+  }
+  else if (mode == "ppg_motion") {
+    handleBoth(req, res, outputfile, debug);
   }
   else {;}
-
 };
 
-handlePPG = function(request, response, outputfile, debug) {
-  const { headers, method, url } = request;
+handleBoth = function(req, res, outputfile, debug) {
+  const { headers, method, url } = req;
   if (debug == 1) {
     console.log("headers: " + headers)
     console.log("method: " + method)
     console.log("url: " + url)
-    console.log("requestBody: " + requestBody);
   }
-
-  var requestBody = [];
-  request.on('error', (err) => {
+  var reqBody = [];
+  req.on('error', (err) => {
     console.error(err);
   }).on('data', (chunk) => {
-    requestBody.push(chunk);
+    reqBody.push(chunk);
   }).on('end', () => {
-    requestBody = Buffer.concat(requestBody).toString();
+    reqBody = Buffer.concat(reqBody).toString();
+    if (debug == 1) { console.log(reqBody); }
 
-    if (debug == 1) { console.log(requestBody); }
+    var ppg_motion;
+    jsonParseBoth(reqBody, debug, function(data) {
+      ppg_motion = data;
+    });
+
+    var record = logger.makeCsvRecord([ppg_motion.time, ppg_motion.Red, ppg_motion.IR, ppg_motion.X, ppg_motion.Y, ppg_motion.Z]);
+    if (debug == 1) { console.log(record); }
+
+    logger.append_to(outputfile, record)
+
+    makeResponse(res);
+  })
+}
+
+jsonParseBoth = function(str, debug, callback) {
+  var ppg_motion = {
+    time : null,
+    Red : null,
+    IR : null,
+    X : null,
+    Y : null,
+    Z : null
+  };
+  JSON.parse(str, (key, value) => {
+    if (debug == 1) { console.log("parsing " + key + " with value " + value); }
+    if (key == "time") {
+      ppg_motion.time = value;
+    }
+    else if (key == "Red") {
+      ppg_motion.Red = value;
+    }
+    else if (key == "IR") {
+      ppg_motion.IR = value;
+    }
+    else if (key == "X") {
+      ppg_motion.X = value;
+    }
+    else if (key == "Y") {
+      ppg_motion.Y = value;
+    }
+    else if (key == "Z") {
+      ppg_motion.Z = value;
+    }
+    else {
+      ;
+    }
+  })
+  console.log("Request Parsing Done.");
+  return callback(ppg_motion);
+}
+
+handlePPG = function(req, res, outputfile, debug) {
+  const { headers, method, url } = req;
+  if (debug == 1) {
+    console.log("headers: " + headers)
+    console.log("method: " + method)
+    console.log("url: " + url)
+    console.log("reqBody: " + reqBody);
+  }
+
+  var reqBody = [];
+  req.on('error', (err) => {
+    console.error(err);
+  }).on('data', (chunk) => {
+    reqBody.push(chunk);
+  }).on('end', () => {
+    reqBody = Buffer.concat(reqBody).toString();
+
+    if (debug == 1) { console.log(reqBody); }
 
     var ppg;
-    jsonParsePPG(requestBody, debug, function(data) {
+    jsonParsePPG(reqBody, debug, function(data) {
       ppg = data;
     });
 
@@ -41,31 +110,31 @@ handlePPG = function(request, response, outputfile, debug) {
 
     logger.append_to(outputfile, record)
 
-    makeResponse(response);
+    makeResponse(res);
   })
 };
 
-handleMotion = function(request, response, outputfile, debug) {
-  const { headers, method, url } = request;
+handleMotion = function(req, res, outputfile, debug) {
+  const { headers, method, url } = req;
   if (debug == 1) {
     console.log("headers: " + headers)
     console.log("method: " + method)
     console.log("url: " + url)
-    console.log("requestBody: " + requestBody);
+    console.log("reqBody: " + reqBody);
   }
 
-  var requestBody = [];
-  request.on('error', (err) => {
+  var reqBody = [];
+  req.on('error', (err) => {
     console.error(err);
   }).on('data', (chunk) => {
-    requestBody.push(chunk);
+    reqBody.push(chunk);
   }).on('end', () => {
-    requestBody = Buffer.concat(requestBody).toString();
+    reqBody = Buffer.concat(reqBody).toString();
 
-    if (debug == 1) { console.log(requestBody); }
+    if (debug == 1) { console.log(reqBody); }
 
     var motion;
-    jsonParseMotion(requestBody, debug, function(data) {
+    jsonParseMotion(reqBody, debug, function(data) {
       motion = data;
     });
 
@@ -75,7 +144,7 @@ handleMotion = function(request, response, outputfile, debug) {
 
     logger.append_to(outputfile, record)
 
-    makeResponse(response);
+    makeResponse(res);
   })
 };
 
@@ -101,7 +170,7 @@ jsonParsePPG = function(str, debug, callback) {
       ;
     }
   })
-  console.log("Request Parsing Done.");
+  console.log("req Parsing Done.");
   return callback(ppg);
 }
 
@@ -130,12 +199,12 @@ jsonParseMotion = function(str, debug, callback) {
   return callback(motion);
 }
 
-makeResponse = function(response) {
-  response.on('error', (err) => {
+makeResponse = function(res) {
+  res.on('error', (err) => {
     console.error(err);
   });
-  response.statusCode = 200;
-  response.setHeader('Content-Type', 'application/json');
-  var responseBody = "Greeting from the Cloud.";
-  response.end(responseBody);
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  var resBody = "Greeting from the Cloud.";
+  res.end(resBody);
 }

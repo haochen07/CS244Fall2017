@@ -1,26 +1,29 @@
 var csv = require("fast-csv");
 var Fili = require('fili');
 
-module.exports.extractFeatures = function(callback) {
+module.exports.extractFeatures = function(inputfile, callback) {
   var ppg = {
     time: [], //column "time(second)"
     RED:   [], //column "RED"
     IR:  [] //column "IR"
   };
 
-  csv.fromPath("./data/sample.csv")
+  csv.fromPath(inputfile)
      .on("data", function(data){
-        if (data[0] != "time(second)") {
+        if (data[0] != "time") {
           ppg.time.push(Number(data[0]));
         }
-        if (data[1] != "RED") {
+        if (data[1] != "Red") {
           ppg.RED.push(Number(data[1]));
         }
         if (data[2] != "IR") {
           ppg.IR.push(Number(data[2]));
         }
       })
-      .on("end", function(){
+      .on("end", function() {
+        for(i=0; i< ppg.time.length;i++) {
+          ppg.time[i] = ppg.time[i] / 1000.0;
+        }
         return callback(getFeatures(ppg));
       });
 }
@@ -28,8 +31,8 @@ module.exports.extractFeatures = function(callback) {
 function getFeatures(ppg) {
   return {
     time:             ppg.time,
-    IR:               ppg.IR,
     RED:              ppg.RED,
+    IR:               ppg.IR,
     heartRate:        getHeartRate(ppg),
     respirationRate:  getRespirationRate(ppg),
     spo2:             getSpo2(ppg)

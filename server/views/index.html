@@ -32,6 +32,14 @@
 		var respirationRate = <%= respiration %>;
 		var spo2 = <%= spo2 %>;
 		
+		
+		console.log(time);
+		console.log(IR);
+		console.log(RED);
+		console.log(heartRate);
+		console.log(respirationRate);
+		console.log(spo2);
+		
 		var heartChart = new Chart(document.getElementById('heartRate').getContext('2d'), {
 			type: 'line',
 			data: {
@@ -49,7 +57,7 @@
 				scales: {
                     yAxes: [{
                     	ticks: {
-                        	max: 110,
+                        	max: 100,
                             min: 40
                         }
                     }]
@@ -84,7 +92,7 @@
                     yAxes: [{
                     	ticks: {
                         	max: 20,
-                            min: 12
+                            min: 0
                         }
                     }]
                 },
@@ -120,8 +128,8 @@
                         display: true,
                         position: "left",
                         ticks: {
-                        	max: 100,//235000,
-                            min: 60//220000
+                        	max: 85,//235000,
+                            min: 75//220000
                         }
                     }]
                 },

@@ -1,6 +1,6 @@
 var request = require("request");
 
-var url = "http://128.195.66.253:8888";
+var url = "http://169.234.45.241:8888";
 
 var ppgData = { "request": {"Red" : "red",
                          "IR": "ir",
@@ -12,10 +12,20 @@ var motionData = { "request": {"X" : "1",
                          "Z": "3"}
                 };
 
+
+var ppgMotionData = { "request": {
+                          "time": "0",
+                          "Red" : "red",
+                          "IR" : "IR",
+                          "X" : "1",
+                          "Y": "2",
+                          "Z": "3"}
+                };
+                                
 request({
-  url: url + "/motion",
+  url: url + "/ppg_motion",
   method: "GET",
-  json: motionData
+  json: ppgMotionData
   }, function(error, response, body) {
   console.log(body);
 });
