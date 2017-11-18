@@ -11,7 +11,7 @@ module.exports.extractFeatures = function(inputfile, callback) {
   csv.fromPath(inputfile)
      .on("data", function(data){
         if (data[0] != "time") {
-          ppg.time.push(Number(data[0]));
+          ppg.time.push(Number(data[0]) / 1000.0);
         }
         if (data[1] != "Red") {
           ppg.RED.push(Number(data[1]));
@@ -21,9 +21,6 @@ module.exports.extractFeatures = function(inputfile, callback) {
         }
       })
       .on("end", function() {
-        for(i=0; i< ppg.time.length;i++) {
-          ppg.time[i] = ppg.time[i] / 1000.0;
-        }
         return callback(getFeatures(ppg));
       });
 }
@@ -102,7 +99,7 @@ function applyBandPassFilter(data, fc, bw) {
   var iirFilterCoeffs = new Fili.CalcCascades().bandpass({
     order:          9, // cascade 3 biquad filters (max: 12)
     characteristic: 'butterworth',
-    Fs:             50, // sampling frequency
+    Fs:             20, // sampling frequency
     Fc:             fc, // cutoff frequency / center frequency for bandpass, bandstop, peak
     BW:             bw, // bandwidth only for bandstop and bandpass filters - optional
     gain:           0, // gain for peak, lowshelf and highshelf
