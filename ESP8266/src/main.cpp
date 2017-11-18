@@ -7,15 +7,11 @@
 #include "SparkFunLIS3DH.h"
 #include "SPI.h"
 
-String deviceName = "CS244";
-// ACC sensor
-LIS3DH myIMU(SPI_MODE, 4); // constructed with parameters for SPI and cs pin number
-
-// PPG sensor
-// MAX30105 particleSensor;
-
-// WiFi settings
+const String deviceName = "CS244";
 const char *ssid = "UCInet Mobile Access";
+
+LIS3DH myIMU(SPI_MODE, 4); // constructed with parameters for SPI and cs pin number
+MAX30105 particleSensor;
 
 void connectWiFi()
 {
@@ -26,29 +22,16 @@ void connectWiFi()
         Serial.print(".");
     }
     Serial.println("");
-    Serial.println("WiFi connected");
-    // Print the IP address
-    Serial.println(WiFi.localIP());
+    Serial.println("WiFi connected.");
 }
 
 void initializePPGSensor() {
-    if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
-    {
-        Serial.println("MAX30105 was not found. Please check wiring/power. ");
+    //Use default I2C port, 400kHz speed
+    if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
+        Serial.println("MAX30105 was not found. Please check wiring/power.");
         while (1);
     }
-    
-    //Configure sensor. Use 6.4mA for LED drive
     particleSensor.setup();
-
-    //byte powerLevel = 0x02; //0.4mA - Presence detection of ~4 inch
-    byte powerLevel = 0x1F; // 6.4mA - Presence detection of ~8 inch
-    //byte powerLevel = 0x7F; //25.4mA - Presence detection of ~8 inch
-    //byte powerLevel = 0xFF; //50.0mA - Presence detection of ~12 inch
-    particleSensor.setPulseAmplitudeRed(powerLevel);
-    particleSensor.setPulseAmplitudeIR(powerLevel);
-    particleSensor.setPulseAmplitudeGreen(powerLevel);
-    particleSensor.setPulseAmplitudeProximity(powerLevel);
 }
 
 void initializeACCSensor() {
@@ -62,19 +45,16 @@ void setup()
     Serial.begin(115200);
     Serial.println("Program started");
 
-    // connect WiFi
     connectWiFi();
-    // initialize ACC sensor
     initializeACCSensor();
-    // initialize PPG sensor
-    // initializePPGSensor();
+    initializePPGSensor();
 }
 
 void loop()
 {
     // Configure http connection and set headers
     HTTPClient http;
-    http.begin("http://169.234.30.169:8888/rest");
+    http.begin("http://169.234.44.2:8888/ppg_motion");
     http.addHeader("Content-Type", "application/json");
 
     // Render Json request
@@ -82,12 +62,12 @@ void loop()
     JsonObject& root = JSONbuffer.createObject();
 
     // Record to json
+    root["time"] = millis();
+    root["Red"] = particleSensor.getRed();
+    root["IR"] = particleSensor.getIR();  
     root["X"] = myIMU.readFloatAccelX();
     root["Y"] = myIMU.readFloatAccelY();
     root["Z"] = myIMU.readFloatAccelZ();
-
-    // root["Red"] = particleSensor.getRed();
-    // root["IR"] = particleSensor.getIR();
 
     // Convert Json object to string
     char jsonBuffer[300];
