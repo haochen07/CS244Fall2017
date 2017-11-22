@@ -16,8 +16,8 @@ app.post('/ppg', function(req, res) {
   rest.handle("ppg", req, res, ppgOutputFile, 0);
 });
 
-app.post('/ppg_motion', function(req, res) {
-  rest.handle("ppg_motion", req, res, ppg_motionOutputFile, 0);
+app.post('/ppg_motion_in_batch', function(req, res) {
+  rest.handle("ppg_motion_in_batch", req, res, ppg_motionOutputFile, 0);
 });
 
 app.listen(8888);
