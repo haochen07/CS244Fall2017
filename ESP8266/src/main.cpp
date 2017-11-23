@@ -52,30 +52,41 @@ void setup()
 
 void loop()
 {
-    // Configure http connection and set headers
-    HTTPClient http;
-    http.begin("http://169.234.44.2:8888/ppg_motion");
-    http.addHeader("Content-Type", "application/json");
+    // Define amount of data
+    const size_t batch_size = 1 * 1 * 50;
+    const size_t buffer_size = 6 * JSON_ARRAY_SIZE(batch_size) + JSON_OBJECT_SIZE(6) + 100;
 
     // Render Json request
-    StaticJsonBuffer<300> JSONbuffer;
+    DynamicJsonBuffer JSONbuffer(buffer_size);
     JsonObject& root = JSONbuffer.createObject();
+    JsonArray& Time = root.createNestedArray("time");
+    JsonArray& Red = root.createNestedArray("Red");
+    JsonArray& IR = root.createNestedArray("IR");
+    JsonArray& X = root.createNestedArray("X");
+    JsonArray& Y = root.createNestedArray("Y");
+    JsonArray& Z = root.createNestedArray("Z");
 
-    // Record to json
-    root["time"] = millis();
-    root["Red"] = particleSensor.getRed();
-    root["IR"] = particleSensor.getIR();  
-    root["X"] = myIMU.readFloatAccelX();
-    root["Y"] = myIMU.readFloatAccelY();
-    root["Z"] = myIMU.readFloatAccelZ();
+    for (size_t i = 0; i < batch_size; i++) {
+        Time.add(millis());
+        Red.add(particleSensor.getRed());
+        IR.add(particleSensor.getIR());
+        X.add(myIMU.readFloatAccelX());
+        Y.add(myIMU.readFloatAccelY());
+        Z.add(myIMU.readFloatAccelZ());
+    }
 
     // Convert Json object to string
-    char jsonBuffer[300];
-    root.printTo(jsonBuffer, sizeof(jsonBuffer));
-    Serial.println(jsonBuffer);
+    String jsonStr;
+    root.printTo(jsonStr);
+    Serial.println(jsonStr);
+
+    // Configure http connection and set headers
+    HTTPClient http;
+    http.begin("http://169.234.55.2:8888/ppg_motion_in_batch");
+    http.addHeader("Content-Type", "application/json");
 
     // Post request, receive http response and print
-    int httpCode = http.POST(jsonBuffer);
+    int httpCode = http.POST(jsonStr);
     String payload = http.getString();
     Serial.println(httpCode);
     Serial.println(payload);
