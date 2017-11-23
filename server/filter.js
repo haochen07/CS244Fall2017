@@ -99,7 +99,7 @@ function applyBandPassFilter(data, fc, bw) {
   var iirFilterCoeffs = new Fili.CalcCascades().bandpass({
     order:          9, // cascade 3 biquad filters (max: 12)
     characteristic: 'butterworth',
-    Fs:             25, // sampling frequency
+    Fs:             20, // sampling frequency
     Fc:             fc, // cutoff frequency / center frequency for bandpass, bandstop, peak
     BW:             bw, // bandwidth only for bandstop and bandpass filters - optional
     gain:           0, // gain for peak, lowshelf and highshelf

@@ -53,7 +53,7 @@ void setup()
 void loop()
 {
     // Define amount of data
-    const size_t batch_size = 1 * 1 * 50;
+    const size_t batch_size = 1 * 60 * 50;
     const size_t buffer_size = 6 * JSON_ARRAY_SIZE(batch_size) + JSON_OBJECT_SIZE(6) + 100;
 
     // Render Json request
