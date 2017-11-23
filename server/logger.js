@@ -13,25 +13,35 @@ module.exports.recordFeatures = function(data) {
 
 // module.exports is what you need to make the function available to other modules, when they require("./output.js")
 write_to = function(filepath, content) {
-  fs.writeFile(filepath, content, function(err) {
-    if(err) {
-      return console.log(err);
-     }
-     console.log("Create file: " + filepath + " and write: " + content);
-  });
+  fs.writeFileSync(filepath, content);
+  console.log("Create file: " + filepath + " and write: " + content);
 }
 
 module.exports.append_to = function(filepath, content) {
-  fs.appendFile(filepath, content, function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log("Write: " + content + " to existing file: " + filepath);
-  });
+  fs.appendFileSync(filepath, content);
+  console.log("Append: " + content + " to existing file: " + filepath);
 }
 
 module.exports.makeCsvRecord = function(listData) {
   return listData.join(',') + '\n';
+}
+module.exports.log_ppg_motion_records = function(data) {
+  var rst = "";
+  var time = data['time'];
+  var Red = data['Red'];
+  var IR = data['IR'];
+  var X = data['X'];
+  var Y = data['Y'];
+  var Z = data['Z'];
+  for(var i = 0; i < time.length; i++) {
+    rst += time[i] + ','
+         + Red[i] + ','
+         + IR[i] + ','
+         + X[i] + ','
+         + Y[i] + ','
+         + Z[i] + '\n'
+  }
+  return rst;
 }
 
 module.exports.prepareStorageFor = function(mode) {
