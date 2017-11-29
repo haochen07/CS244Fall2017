@@ -7,7 +7,7 @@ module.exports.recordFeatures = function(data) {
 
   for(i = 0; i < data.IR.length; i++) {
     var line = data.IR[i] + ',' + data.RED[i] + ',' + data.heartRate[i] + ',' + data.respirationRate[i] + ',' + data.spo2[i] + '\n';
-    fs.appendFile(filepath, line);
+    fs.appendFileSync(filepath, line);
   }
 }
 
