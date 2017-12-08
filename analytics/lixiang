@@ -1,0 +1,727 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "# Activity Classification"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import sklearn as skl\n",
+    "from sklearn import svm\n",
+    "from sklearn.svm import SVC\n",
+    "from sklearn.metrics import accuracy_score\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.utils import shuffle"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 1. Build classifier\n",
+    "- **Load data samples**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Shape of Data: (10548, 17)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Time</th>\n",
+       "      <th>X</th>\n",
+       "      <th>Y</th>\n",
+       "      <th>Z</th>\n",
+       "      <th>Activity</th>\n",
+       "      <th>X.1</th>\n",
+       "      <th>Y.1</th>\n",
+       "      <th>Z.1</th>\n",
+       "      <th>Activity.1</th>\n",
+       "      <th>X.2</th>\n",
+       "      <th>Y.2</th>\n",
+       "      <th>Z.2</th>\n",
+       "      <th>Activity.2</th>\n",
+       "      <th>X.3</th>\n",
+       "      <th>Y.3</th>\n",
+       "      <th>Z.3</th>\n",
+       "      <th>Activity.3</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>-0.036029</td>\n",
+       "      <td>-0.202164</td>\n",
+       "      <td>0.940764</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.062050</td>\n",
+       "      <td>0.698568</td>\n",
+       "      <td>0.747607</td>\n",
+       "      <td>2</td>\n",
+       "      <td>-0.067054</td>\n",
+       "      <td>-0.022018</td>\n",
+       "      <td>1.039845</td>\n",
+       "      <td>3</td>\n",
+       "      <td>-0.179146</td>\n",
+       "      <td>-0.366298</td>\n",
+       "      <td>0.842685</td>\n",
+       "      <td>4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>50</td>\n",
+       "      <td>-0.040033</td>\n",
+       "      <td>-0.203165</td>\n",
+       "      <td>1.002815</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.059048</td>\n",
+       "      <td>0.698568</td>\n",
+       "      <td>0.746607</td>\n",
+       "      <td>2</td>\n",
+       "      <td>-0.063051</td>\n",
+       "      <td>-0.019015</td>\n",
+       "      <td>1.039845</td>\n",
+       "      <td>3</td>\n",
+       "      <td>-0.212172</td>\n",
+       "      <td>-0.387315</td>\n",
+       "      <td>0.895728</td>\n",
+       "      <td>4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>100</td>\n",
+       "      <td>-0.036029</td>\n",
+       "      <td>-0.199162</td>\n",
+       "      <td>1.012823</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.062050</td>\n",
+       "      <td>0.695565</td>\n",
+       "      <td>0.742603</td>\n",
+       "      <td>2</td>\n",
+       "      <td>-0.069056</td>\n",
+       "      <td>-0.022018</td>\n",
+       "      <td>1.037843</td>\n",
+       "      <td>3</td>\n",
+       "      <td>-0.197160</td>\n",
+       "      <td>-0.408332</td>\n",
+       "      <td>0.913742</td>\n",
+       "      <td>4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>150</td>\n",
+       "      <td>-0.026021</td>\n",
+       "      <td>-0.192156</td>\n",
+       "      <td>1.033840</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.059048</td>\n",
+       "      <td>0.697567</td>\n",
+       "      <td>0.745606</td>\n",
+       "      <td>2</td>\n",
+       "      <td>-0.065053</td>\n",
+       "      <td>-0.023019</td>\n",
+       "      <td>1.033840</td>\n",
+       "      <td>3</td>\n",
+       "      <td>-0.190155</td>\n",
+       "      <td>-0.406330</td>\n",
+       "      <td>0.928755</td>\n",
+       "      <td>4</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>200</td>\n",
+       "      <td>-0.030024</td>\n",
+       "      <td>-0.196159</td>\n",
+       "      <td>1.020829</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.059048</td>\n",
+       "      <td>0.697567</td>\n",
+       "      <td>0.750610</td>\n",
+       "      <td>2</td>\n",
+       "      <td>-0.065053</td>\n",
+       "      <td>-0.020016</td>\n",
+       "      <td>1.034841</td>\n",
+       "      <td>3</td>\n",
+       "      <td>-0.176143</td>\n",
+       "      <td>-0.402327</td>\n",
+       "      <td>0.920748</td>\n",
+       "      <td>4</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Time         X         Y         Z  Activity       X.1       Y.1       Z.1  \\\n",
+       "0     0 -0.036029 -0.202164  0.940764         1 -0.062050  0.698568  0.747607   \n",
+       "1    50 -0.040033 -0.203165  1.002815         1 -0.059048  0.698568  0.746607   \n",
+       "2   100 -0.036029 -0.199162  1.012823         1 -0.062050  0.695565  0.742603   \n",
+       "3   150 -0.026021 -0.192156  1.033840         1 -0.059048  0.697567  0.745606   \n",
+       "4   200 -0.030024 -0.196159  1.020829         1 -0.059048  0.697567  0.750610   \n",
+       "\n",
+       "   Activity.1       X.2       Y.2       Z.2  Activity.2       X.3       Y.3  \\\n",
+       "0           2 -0.067054 -0.022018  1.039845           3 -0.179146 -0.366298   \n",
+       "1           2 -0.063051 -0.019015  1.039845           3 -0.212172 -0.387315   \n",
+       "2           2 -0.069056 -0.022018  1.037843           3 -0.197160 -0.408332   \n",
+       "3           2 -0.065053 -0.023019  1.033840           3 -0.190155 -0.406330   \n",
+       "4           2 -0.065053 -0.020016  1.034841           3 -0.176143 -0.402327   \n",
+       "\n",
+       "        Z.3  Activity.3  \n",
+       "0  0.842685           4  \n",
+       "1  0.895728           4  \n",
+       "2  0.913742           4  \n",
+       "3  0.928755           4  \n",
+       "4  0.920748           4  "
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data = pd.read_csv('train.csv')\n",
+    "\n",
+    "print(\"Shape of Data: \" + str(data.shape))\n",
+    "data[:5]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Reshape data formats**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Reshaped data size: (42192, 4)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>X</th>\n",
+       "      <th>Y</th>\n",
+       "      <th>Z</th>\n",
+       "      <th>Activity</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>-0.036029</td>\n",
+       "      <td>-0.202164</td>\n",
+       "      <td>0.940764</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>-0.040033</td>\n",
+       "      <td>-0.203165</td>\n",
+       "      <td>1.002815</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>-0.036029</td>\n",
+       "      <td>-0.199162</td>\n",
+       "      <td>1.012823</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>-0.026021</td>\n",
+       "      <td>-0.192156</td>\n",
+       "      <td>1.033840</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>-0.030024</td>\n",
+       "      <td>-0.196159</td>\n",
+       "      <td>1.020829</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "          X         Y         Z  Activity\n",
+       "0 -0.036029 -0.202164  0.940764         1\n",
+       "1 -0.040033 -0.203165  1.002815         1\n",
+       "2 -0.036029 -0.199162  1.012823         1\n",
+       "3 -0.026021 -0.192156  1.033840         1\n",
+       "4 -0.030024 -0.196159  1.020829         1"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "act1 = data[:][['X', 'Y', 'Z', 'Activity']].rename(columns = { 'X':'X', 'Y':'Y', 'Z':'Z', 'Activity':'Activity'})\n",
+    "act2 = data[:][['X.1', 'Y.1', 'Z.1', 'Activity.1']].rename(columns = { 'X.1':'X', 'Y.1':'Y', 'Z.1':'Z', 'Activity.1':'Activity'})\n",
+    "act3 = data[:][['X.2', 'Y.2', 'Z.2', 'Activity.2']].rename(columns = { 'X.2':'X', 'Y.2':'Y', 'Z.2':'Z', 'Activity.2':'Activity'})\n",
+    "act4 = data[:][['X.3', 'Y.3', 'Z.3', 'Activity.3']].rename(columns = { 'X.3':'X', 'Y.3':'Y', 'Z.3':'Z', 'Activity.3':'Activity'})\n",
+    "\n",
+    "reshaped = pd.concat([act1, act2, act3, act4], axis = 0)\n",
+    "\n",
+    "print(\"Reshaped data size: \" + str(reshaped.shape))\n",
+    "reshaped[:5]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Normalize data**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "((42192L, 3L), (42192L, 1L))\n"
+     ]
+    }
+   ],
+   "source": [
+    "X = reshaped[['X', 'Y', 'Z']].values\n",
+    "Y = reshaped[['Activity']].values\n",
+    "# mean = np.mean(X, axis=0).reshape(1,3)\n",
+    "# std = np.std(X, axis=0).reshape(1,3)\n",
+    "# X = (X - mean)/std\n",
+    "\n",
+    "print(X.shape, Y.shape)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Split data set into training set and test set**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Train SVM classifier**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,\n",
+       "  decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',\n",
+       "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+       "  tol=0.001, verbose=False)"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "clf = SVC()\n",
+    "clf.fit(X_train, Y_train.ravel())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Test model performance**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training Set Error Rate: 0.00183687375937\n",
+      "Test Set Error Rate: 0.00225145159379\n"
+     ]
+    }
+   ],
+   "source": [
+    "Y_train_pred = clf.predict(X_train)\n",
+    "Y_test_pred = clf.predict(X_test)\n",
+    "train_error = 1 - accuracy_score(Y_train, Y_train_pred)\n",
+    "test_error = 1 - accuracy_score(Y_test, Y_test_pred)\n",
+    "\n",
+    "print(\"Training Set Error Rate: \" + str(train_error))\n",
+    "print(\"Test Set Error Rate: \" + str(test_error))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 2. Predict Experiment Data\n",
+    "- **Load experiment data**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Shape of Data: (12699, 9)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style>\n",
+       "    .dataframe thead tr:only-child th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: left;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>time</th>\n",
+       "      <th>Red</th>\n",
+       "      <th>IR</th>\n",
+       "      <th>X</th>\n",
+       "      <th>Y</th>\n",
+       "      <th>Z</th>\n",
+       "      <th>heart_rate</th>\n",
+       "      <th>respiration_rate</th>\n",
+       "      <th>SPO2</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>50</td>\n",
+       "      <td>83630</td>\n",
+       "      <td>90614</td>\n",
+       "      <td>-0.067054</td>\n",
+       "      <td>-0.022018</td>\n",
+       "      <td>1.039845</td>\n",
+       "      <td>92.307692</td>\n",
+       "      <td>17.647059</td>\n",
+       "      <td>80.138398</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>100</td>\n",
+       "      <td>83633</td>\n",
+       "      <td>90625</td>\n",
+       "      <td>-0.063051</td>\n",
+       "      <td>-0.019015</td>\n",
+       "      <td>1.039845</td>\n",
+       "      <td>92.307692</td>\n",
+       "      <td>17.647059</td>\n",
+       "      <td>80.138398</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>150</td>\n",
+       "      <td>83710</td>\n",
+       "      <td>90627</td>\n",
+       "      <td>-0.069056</td>\n",
+       "      <td>-0.022018</td>\n",
+       "      <td>1.037843</td>\n",
+       "      <td>92.307692</td>\n",
+       "      <td>17.647059</td>\n",
+       "      <td>80.138398</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>200</td>\n",
+       "      <td>83725</td>\n",
+       "      <td>90664</td>\n",
+       "      <td>-0.065053</td>\n",
+       "      <td>-0.023019</td>\n",
+       "      <td>1.033840</td>\n",
+       "      <td>92.307692</td>\n",
+       "      <td>17.647059</td>\n",
+       "      <td>80.138398</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>250</td>\n",
+       "      <td>83711</td>\n",
+       "      <td>90681</td>\n",
+       "      <td>-0.065053</td>\n",
+       "      <td>-0.020016</td>\n",
+       "      <td>1.034841</td>\n",
+       "      <td>92.307692</td>\n",
+       "      <td>17.647059</td>\n",
+       "      <td>80.138398</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   time    Red     IR         X         Y         Z  heart_rate  \\\n",
+       "0    50  83630  90614 -0.067054 -0.022018  1.039845   92.307692   \n",
+       "1   100  83633  90625 -0.063051 -0.019015  1.039845   92.307692   \n",
+       "2   150  83710  90627 -0.069056 -0.022018  1.037843   92.307692   \n",
+       "3   200  83725  90664 -0.065053 -0.023019  1.033840   92.307692   \n",
+       "4   250  83711  90681 -0.065053 -0.020016  1.034841   92.307692   \n",
+       "\n",
+       "   respiration_rate       SPO2  \n",
+       "0         17.647059  80.138398  \n",
+       "1         17.647059  80.138398  \n",
+       "2         17.647059  80.138398  \n",
+       "3         17.647059  80.138398  \n",
+       "4         17.647059  80.138398  "
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "samples = pd.read_csv('standing.csv')\n",
+    "\n",
+    "print(\"Shape of Data: \" + str(samples.shape))\n",
+    "samples[:5]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "- **Reshape and Normalize data**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Shape of input: (12696L, 3L)\n",
+      "[[-0.067054 -0.022018  1.039845]\n",
+      " [-0.063051 -0.019015  1.039845]\n",
+      " [-0.069056 -0.022018  1.037843]\n",
+      " ..., \n",
+      " [-0.06205  -0.020016  1.035842]\n",
+      " [-0.06205  -0.021017  1.041847]\n",
+      " [-0.06105  -0.021017  1.034841]]\n",
+      "Shape of output: (12696L, 1L)\n",
+      "[[ 3.]\n",
+      " [ 3.]\n",
+      " [ 3.]\n",
+      " ..., \n",
+      " [ 3.]\n",
+      " [ 3.]\n",
+      " [ 3.]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "X_exp = samples[:][['X','Y','Z']].values\n",
+    "X_exp = X_exp[0:-3]\n",
+    "# mean = np.mean(X_exp, axis=0).reshape(1,3)\n",
+    "# std = np.std(X_exp, axis=0).reshape(1,3)\n",
+    "# X_exp = (X_exp - mean)/std\n",
+    "Y_exp = np.ones((X_exp.shape[0], 1)) * 3\n",
+    "\n",
+    "print(\"Shape of input: \" + str(X_exp.shape))\n",
+    "print(X_exp)\n",
+    "print(\"Shape of output: \" + str(Y_exp.shape))\n",
+    "print(Y_exp)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Calculate experiment error rate**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Experiment Error Rate: 0.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "Y_exp_pred = clf.predict(X_exp)\n",
+    "exp_error = 1 - accuracy_score(Y_exp, Y_exp_pred)\n",
+    "\n",
+    "print(\"Experiment Error Rate: \" + str(exp_error))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- **Output Predictions**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "np.savetxt(\"predictions.csv\", Y_exp_pred, delimiter=\",\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "anaconda-cloud": {},
+  "kernelspec": {
+   "display_name": "Python 2",
+   "language": "python",
+   "name": "python2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
